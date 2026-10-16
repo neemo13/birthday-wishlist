@@ -87,12 +87,12 @@ def test_server_session_revoked_returns_user_to_login(pg, creds):
     assert "Welcome, lovely!" in texts(at).replace("&nbsp;", " ") and TOKEN not in at.session_state
 
 
-def test_missing_configuration_shows_friendly_message_not_traceback(monkeypatch):
+def test_missing_configuration_shows_friendly_message_not_traceback(monkeypatch, tmp_path):
     from wishlist import db
     db.set_client(None)
     for k in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY"):
         monkeypatch.delenv(k, raising=False)
-    monkeypatch.chdir("/tmp")  # no secrets.toml here
+    monkeypatch.chdir(tmp_path)  # no secrets.toml here
     import os
     os.environ.pop("SUPABASE_URL", None)
     at = AppTest.from_file(APP, default_timeout=30)

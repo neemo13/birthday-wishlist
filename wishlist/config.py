@@ -32,7 +32,12 @@ class Config:
         return self.app_env == "prod"
 
 
+
 def _read(name: str, default: str | None = None) -> str | None:
+    value = os.environ.get(name)
+    if value is not None:
+        return value
+
     try:
         import streamlit as st
 
@@ -40,7 +45,9 @@ def _read(name: str, default: str | None = None) -> str | None:
             return str(st.secrets[name])
     except Exception:  # no secrets file / not running under Streamlit
         pass
-    return os.environ.get(name, default)
+
+    return default
+
 
 
 def log_level() -> str:

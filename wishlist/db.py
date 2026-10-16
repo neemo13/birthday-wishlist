@@ -37,7 +37,7 @@ def get_client() -> Any:
 
 def _log_failure(what: str, exc: Exception) -> None:
     # Class name only: never log parameters (they can contain PINs) or exception text.
-    log.error("%s failed (%s)", what, type(exc).__name__, exc)
+    log.error("%s failed (%s)", what, type(exc).__name__)
 
 
 def rpc(name: str, params: dict | None = None) -> Any:
