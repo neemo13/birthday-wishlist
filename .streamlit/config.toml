@@ -1,0 +1,18 @@
+[theme]
+primaryColor = "#A44E70"
+backgroundColor = "#FFF9F7"
+secondaryBackgroundColor = "#F8E9EB"
+textColor = "#713B50"
+font = "sans serif"
+
+[server]
+enableXsrfProtection = true
+enableCORS = true
+maxUploadSize = 5            # MB - matches the 5 MB image limit enforced in wishlist/storage.py
+
+[client]
+showErrorDetails = "none"
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false

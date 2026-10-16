@@ -1,0 +1,3 @@
+streamlit>=1.46,<2
+supabase>=2.10,<3
+Pillow>=10   # already a Streamlit dependency; listed because we import it directly

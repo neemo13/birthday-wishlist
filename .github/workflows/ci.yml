@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:      # lets you start the browser (e2e) job by hand from the Actions tab
+
+permissions:
+  contents: read          # least privilege: the workflow can only read the repo
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:           # a throw-away PostgreSQL for the database integration tests
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Points at the CI container above - NOT at Supabase. No production secrets are used or needed.
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Syntax check
+        run: python -m compileall -q app.py wishlist views scripts tests
+      - name: Run tests
+        run: pytest -q
+
+  e2e:
+    # Real-browser tests (Playwright). Manual only until you have seen it pass once on your repository.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-e2e.txt
+      - run: pip install -r requirements-e2e.txt
+      - run: playwright install --with-deps chromium
+      - run: pytest e2e -q
